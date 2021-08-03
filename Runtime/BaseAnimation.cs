@@ -21,6 +21,7 @@ namespace AnimationSystem
 
 	    #region PRIVATE_VARS
 
+		bool isAnimationStarted;
 	    private float currentTime;
 	    #endregion
 
@@ -61,12 +62,14 @@ namespace AnimationSystem
 	    public void StartAnimate()
 	    {
 		    OnAnimationStart();
+			isAnimationStarted = true;
 		    StartCoroutine(RunAnimation());
 	    }
 	    [ContextMenu("Stop Animation")]
 	    public void StopAnimate()
 	    {
 		    if(loop) OnAnimationEnd();
+			isAnimationStarted = false;
 		    StopCoroutine(RunAnimation());
 	    }
 	    #endregion
@@ -75,19 +78,23 @@ namespace AnimationSystem
 
 	    IEnumerator RunAnimation()
 	    {
-		    while (currentTime < duration)
-		    {
-			    currentTime += Time.deltaTime;
-			    float percentage = animationCurve.Evaluate(currentTime / duration);
-			    OnAnimationRunning(percentage);
-			    yield return null;
-		    }
-		    if (loop)
-		    {
-			    currentTime = 0;
-			    StartCoroutine(RunAnimation());
-		    }
-		    OnAnimationEnd();
+			if (isAnimationStarted)
+			{
+				while (currentTime < duration)
+				{
+					currentTime += Time.deltaTime;
+					float percentage = animationCurve.Evaluate(currentTime / duration);
+					OnAnimationRunning(percentage);
+					yield return null;
+				}
+				if (loop)
+				{
+					currentTime = 0;
+					StartCoroutine(RunAnimation());
+				}
+				OnAnimationEnd();
+			}
+			yield return null;
 	    }
 	    #endregion
 	}
